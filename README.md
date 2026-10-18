@@ -130,18 +130,22 @@ flowchart TD
 
 ### 90-Day Simulation & Cash Flow Modeling
 - Daily balances are computed over a 90-day forward horizon starting from `request_date`:
-  $$\text{Balance}(t) = \text{Balance}(t-1) + \sum \text{Cash Inflows}(t) - \sum \text{Cash Outflows}(t)$$
+  ```text
+  Daily_Balance(t) = Daily_Balance(t-1) + Cash_Inflows(t) - Cash_Outflows(t)
+  ```
 - **Non-Cash Filtering:** Unrealized investment values, cancelled events, and duplicate entries are strictly excluded from liquid cash calculations.
 - **Conservative Accounting:** Pending credits, unconfirmed bonuses, and lottery proceeds are omitted until settled. Confirmed salary is credited on its exact settlement date.
 
 ### Amount Safe to Pay
 - Computes the maximum safe payment on `request_date` using binary search over feasible amounts:
-  $$0 \le \text{amount\_safe\_to\_pay} \le \text{requested\_amount}$$
-- Ensures that taking this payment from the balance keeps all future days $t \in [T_0, T_0 + 90]$ at or above `minimum_balance_to_keep`.
+  ```text
+  0 <= amount_safe_to_pay <= requested_amount
+  ```
+- Ensures that taking this payment from the balance keeps all future days `t` in `[T_0, T_0 + 90]` at or above `minimum_balance_to_keep`.
 
 ### Earliest Date for Full Payment
-- Sweeps forward across each day $t \in [T_0, T_0 + 90]$ to find the earliest date when a single lump-sum payment of `requested_amount` can be executed safely.
-- If safe today, $\text{earliest\_date} = \text{request\_date}$. If unsafe across all 90 days, the field is empty.
+- Sweeps forward across each day `t` in `[T_0, T_0 + 90]` to find the earliest date when a single lump-sum payment of `requested_amount` can be executed safely.
+- If safe today, `earliest_date_for_full_payment == request_date`. If unsafe across all 90 days, the field is left empty.
 
 ### 6-Tier Candidate Plan Ranking
 When multiple payment options exist (full payment, installments, partial payment, or permitted spending modifications), the agent selects the optimal plan using this strict priority order:
@@ -174,9 +178,9 @@ When messages, images, and event records disagree, conflicts are resolved via:
 
 The pipeline verifies all 8 mandatory challenge constraints before producing [`output.csv`](./output.csv):
 
-1. **Numeric Bounds:** $0 \le \text{amount\_safe\_to\_pay} \le \text{requested\_amount}$.
-2. **Reserve Invariant:** $\text{Daily Balance}(t) \ge \text{minimum\_balance\_to\_keep} \quad \forall t \in [T_0, T_0 + 90]$.
-3. **Affordable Now Consistency:** $\text{affordability\_status} = \text{'affordable\_now'} \iff \text{earliest\_date\_for\_full\_payment} = \text{request\_date}$.
+1. **Numeric Bounds:** `0 <= amount_safe_to_pay <= requested_amount`.
+2. **Reserve Invariant:** `Daily_Balance(t) >= minimum_balance_to_keep` for all days `t` in `[T_0, T_0 + 90]`.
+3. **Affordable Now Consistency:** `affordability_status == 'affordable_now'` if and only if `earliest_date_for_full_payment == request_date`.
 4. **Partial Payment Structure:** Exactly two payments (`amount_safe_to_pay` on `request_date`, remainder on `earliest_date_for_full_payment`) strictly summing to `requested_amount`.
 5. **Installments Option Match:** Must strictly conform to an available `payment_option_id` from `request_payment_options.csv`.
 6. **Permitted Spending Changes:** Maximum 3 changes (`stop:<event_id>` or `reduce_to:<event_id>:<amount>`), restricted strictly to user-permitted flexible categories.
@@ -241,7 +245,7 @@ python -m pytest
 
 From the full 250-request evaluation run:
 
-| Metric | Overall Total | Per-Request Average ($N = 250$) |
+| Metric | Overall Total | Per-Request Average (N = 250) |
 | :--- | :---: | :---: |
 | **Model Invocations** | 261 calls | 1.04 calls / req |
 | **Input Tokens** | 34,800 tokens | 139.20 tokens / req |

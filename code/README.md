@@ -98,9 +98,9 @@ python code/package_submission.py
 
 ## 4. Key Financial Rules Enforced
 
-- **90-Day Safety Invariant:** $\text{Balance}(t) \ge \text{minimum\_balance\_to\_keep} \quad \forall t \in [T_0, T_0 + 90]$.
+- **90-Day Safety Invariant:** `Balance(t) >= minimum_balance_to_keep` for all days `t` in `[T_0, T_0 + 90]`.
 - **Pending & Unrealized Constraints:** Pending debits reserved immediately; pending credits and unrealized investments excluded until settled.
-- **Strict Bounds:** $0 \le \text{amount\_safe\_to\_pay} \le \text{requested\_amount}$.
+- **Strict Bounds:** `0 <= amount_safe_to_pay <= requested_amount`.
 - **Method Consistency:** Installments must match a supplied `payment_option_id`. Partial payment must be exactly 2 payments.
 - **Deterministic 6-Tier Ranking:**
   1. Complete by deadline
