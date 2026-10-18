@@ -50,17 +50,24 @@ A recommendation is **safe** if and only if:
 The agent decouples deterministic financial calculations from probabilistic LLM reasoning. Final monetary decisions and dates are **100% deterministic code**, while LLMs are strictly bounded to fact extraction from unstructured inputs and generating human-readable explanations.
 
 ```mermaid
-flowchart TD
-    A["Raw Input Data<br/>(CSVs, Messages, Images)"] --> B["Ingest Layer<br/>(load_data.py, fx.py)"]
-    B --> C["Extraction Layer<br/>(image_extraction, message_extraction)"]
-    C --> D["Conflict Resolution<br/>(4-tier precedence)"]
-    D --> E["Event Classifier<br/>(Frequency, Flexibility, Lifecycle)"]
-    E --> F["Forecasting Engine<br/>(90-day daily balance simulation)"]
-    F --> G["Plan Generator<br/>(Full, Partial, Installments, Spending Changes)"]
-    G --> H["Deterministic Plan Ranker<br/>(6-tier priority hierarchy)"]
-    H --> I["Explanation Generator<br/>(Action-oriented 3-part rationale)"]
-    I --> J["Invariant Validation Engine<br/>(validate_output.py)"]
-    J --> K["Output CSV & Usage Report<br/>(output.csv, usage_report.md)"]
+flowchart LR
+    subgraph Stage1["1. Ingest & Extraction"]
+        A["Raw Input Data<br/>(CSVs, Messages, Images)"] --> B["Ingest & FX Engine<br/>(load_data.py, fx.py)"]
+        B --> C["Multimodal Extraction<br/>(Claude Vision & NLP)"]
+    end
+
+    subgraph Stage2["2. Reconstruct & Forecast"]
+        C --> D["Conflict Resolution<br/>(4-Tier Precedence)"]
+        D --> E["Event Classifier<br/>(Lifecycle & Flexibility)"]
+        E --> F["90-Day Forecaster<br/>(Daily Balance Simulation)"]
+    end
+
+    subgraph Stage3["3. Plan & Validate"]
+        F --> G["Plan Generator<br/>(Full, Partial, Installments)"]
+        G --> H["Deterministic Ranker<br/>(6-Tier Priority Rules)"]
+        H --> I["Explanation & Validation<br/>(explain.py & validate.py)"]
+        I --> J["Verified Results<br/>(output.csv)"]
+    end
 ```
 
 ---
